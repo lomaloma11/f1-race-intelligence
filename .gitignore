@@ -1,0 +1,20 @@
+# --- Dados e Caches ---
+data/raw/
+data/silver/
+data/gold/
+*.parquet
+
+# --- Cache da FastF1 e do Python ---
+__pycache__/
+*.pyc
+.pytest_cache/
+.ipynb_checkpoints/
+
+# --- Ambiente Virtual e Variáveis de Ambiente ---
+.venv/
+venv/
+env/
+.env
+
+# --- Modelos Treinados Grandes ---
+*.pkl
