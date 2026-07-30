@@ -14,7 +14,7 @@ def main():
 
     print(f" Iniciando coleta para os anos: {args.years}")
 
-    # 1. Coleta de Voltas
+    # 1. Coleta de Voltasiuty
     print("\n--- [1/3] Coletando Laps ---")
     LapsCollector(years=args.years, modes=args.modes).run()
 

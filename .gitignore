@@ -16,5 +16,6 @@ venv/
 env/
 .env
 
-# --- Modelos Treinados Grandes ---
+# --- Modelos Treinados ---
+models/
 *.pkl

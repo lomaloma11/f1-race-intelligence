@@ -40,37 +40,40 @@ def main():
     
     args = parser.parse_args()
 
-    # Mapeia cada dataset ao seu respectivo Cleaner
     processors = {
         "laps": BaseProcessor("laps", LapsCleaner()),
         "results": BaseProcessor("results", ResultsCleaner()),
         "weather": BaseProcessor("weather", WeatherCleaner())
     }
 
-    print(f"Iniciando processamento Silver para os anos: {args.years}")
+    print(f"Iniciando processamento para os anos: {args.years}")
 
     for year in args.years:
         for round_num in range(1, 30):
-            found = False
+            found_in_round = False
+            
             for mode in args.modes:
+                mode_found = False
+                
+                # 1. Processa todas as tabelas Silver primeiro
                 for dataset_name, processor in processors.items():
-                    # Verifica se existe arquivo correspondente na Raw
                     raw_file = os.path.join(
                         "data/raw", dataset_name, f"year={year}", f"round={round_num:02d}", f"{mode}.parquet"
                     )
                     if os.path.exists(raw_file):
-                        found = True
+                        found_in_round = True
+                        mode_found = True
                         processor.process_partition(year, round_num, mode)
                         
-                    # 2. Processa Gold
-                    if found:
-                        process_gold_layer(year, round_num, mode)
+                # 2. Processa a Gold 
+                if mode_found:
+                    process_gold_layer(year, round_num, mode)
 
-            # Se não encontrou nenhum dataset para a rodada no modo principal (R), encerra a temporada
-            if not found and round_num > 1:
+            # Se não encontrou nenhum dataset para a rodada, encerra a temporada
+            if not found_in_round and round_num > 1:
                 break
 
-    print("\n Processamento da camada Silver finalizado com sucesso!")
+    print("\n Processamento das camadas finalizado com sucesso!")
 
 if __name__ == "__main__":
     main()

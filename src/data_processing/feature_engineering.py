@@ -37,7 +37,7 @@ class GoldFeatureBuilder:
             gold_df = pd.merge(gold_df, laps_summary, on='Driver', how='left')
 
         gold_df['avg_track_temp'] = avg_track_temp
-        gold_df['is_rainy'] = is_rainy
+        gold_df['is_rainy_session'] = is_rainy
 
         # Calculando alteração de posições (Grid vs Posição Final)
         if 'GridPosition' in gold_df.columns and 'Position' in gold_df.columns:
