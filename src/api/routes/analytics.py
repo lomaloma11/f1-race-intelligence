@@ -10,7 +10,7 @@ from src.api.schemas.analytics_schemas import (
 analytics_bp = Blueprint('analytics', __name__)
 analytics_service = AnalyticsService()
 
-# 🛞 Rota 1: Pneus 
+# Rota 1: Pneus 
 @analytics_bp.route('/tires/<compound>', methods=['GET'])
 def get_tires(compound):
     """
@@ -142,7 +142,12 @@ def predict_cluster():
             avg_lap_time=validated_data.avg_lap_time,
             std_lap_time=validated_data.std_lap_time
         )
-        return jsonify({"status": "success", "data": resultado}), 200
+        return jsonify({
+            "status": "success", 
+            "data": {
+                "assigned_cluster": resultado
+            }
+        }), 200
         
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500

@@ -33,17 +33,18 @@ class AnalyticsService:
         """
         Recebe o ritmo de um piloto e diz em qual grupo (cluster) ele se encaixa.
         """
-        # O Scikit-Learn exige que os dados sejam passados como uma matriz 2D (lista dentro de lista)
-        data = [[avg_lap_time, std_lap_time]]
+        # 1. Carrega o pacote com os dois artefatos
+        artifacts = joblib.load("models/driver_clustering_model.pkl")
+        scaler = artifacts["scaler"]
+        kmeans = artifacts["kmeans"]
         
-        # 1. Usa a "fita métrica" (Scaler) para normalizar os dados novos
-        scaled_data = self.scaler.transform(data)
+        # 2. Escalonar os dados (formato de lista 2D)
+        scaled_data = scaler.transform([[avg_lap_time, std_lap_time]])
         
-        # 2. O "cérebro" (K-Means) diz a qual grupo ele pertence
-        cluster = self.kmeans.predict(scaled_data)[0]
-
-        return {
-            "avg_lap_time": avg_lap_time,
-            "std_lap_time": std_lap_time,
-            "assigned_cluster": int(cluster) # Convertido para int nativo do Python para o JSON não quebrar
-        }
+        # 3. Fazer a previsão (Isso devolve um numpy.int64)
+        cluster_numpy = kmeans.predict(scaled_data)[0]
+        
+        # 4. CONVERSÃO OBRIGATÓRIA: Transformar em int nativo do Python
+        cluster_id = int(cluster_numpy)
+        
+        return cluster_id

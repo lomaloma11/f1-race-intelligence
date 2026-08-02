@@ -22,12 +22,18 @@ def cluster_driving_styles(n_clusters: int = 3):
     X = df[['avg_lap_time', 'std_lap_time']]
     
     # 3. Normaliza os dados (K-Means é sensível à escala dos números)
+    features = ['avg_lap_time', 'std_lap_time']
+    X = df[features]
+
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
 
-    # 4. Aplica o K-Means
-    kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
-    df['DrivingStyle_Cluster'] = kmeans.fit_predict(X_scaled)
+    # 4. Cria o modelo K-Means
+    kmeans = KMeans(n_clusters=3, random_state=42)
+    kmeans.fit(X_scaled) 
+    
+    # Adiciona os rótulos de volta no DataFrame
+    df['DrivingStyle_Cluster'] = kmeans.labels_
     
     # 5. Exibe um resumo dos grupos
     print("\n Perfis Identificados:")
