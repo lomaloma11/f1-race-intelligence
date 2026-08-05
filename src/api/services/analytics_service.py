@@ -1,4 +1,6 @@
 import joblib
+import os
+from src.utils.s3_client import S3DataLake
 
 class AnalyticsService:
     def __init__(self):
@@ -10,6 +12,8 @@ class AnalyticsService:
         cluster_artifacts = joblib.load("models/driver_clustering_model.pkl")
         self.scaler = cluster_artifacts["scaler"]
         self.kmeans = cluster_artifacts["kmeans"]
+
+        self.S3 = S3DataLake() if os.getenv("S3_BUCKET_NAME") else None
 
     def get_tire_degradation(self, compound: str):
         """

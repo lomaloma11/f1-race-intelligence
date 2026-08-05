@@ -6,6 +6,7 @@ from src.data_processing.cleaners.laps_cleaner import LapsCleaner
 from src.data_processing.cleaners.results_cleaner import ResultsCleaner
 from src.data_processing.cleaners.weather_cleaner import WeatherCleaner
 from src.data_processing.feature_engineering import GoldFeatureBuilder
+from src.utils.s3_client import S3DataLake
 
 def process_gold_layer(year: int, round_num: int, mode: str = "R"):
     silver_base = "data/silver"
@@ -31,6 +32,15 @@ def process_gold_layer(year: int, round_num: int, mode: str = "R"):
         output_file = os.path.join(gold_partition_path, f"{mode}.parquet")
         df_gold.to_parquet(output_file, index=False, compression="snappy")
         print(f"[GOLD] Tabela consolidada gerada: {year} | Round {round_num:02d} | Modo {mode}")
+
+        if os.getenv("S3_BUCKET_NAME"):
+            try:
+                s3 = S3DataLake()
+                s3_key = f"gold/year={year}/round={round_num:02d}/{mode}.parquet"
+                s3.upload_dataframe(df_gold, s3_key)
+                print(f"[GOLD S3] Partição enviada para a nuvem: s3://{s3.bucket_name}/{s3_key}")
+            except Exception as e:
+                print(f"[AWS S3 WARNING] Falha ao enviar para o S3: {e}")
 
 
 def main():
