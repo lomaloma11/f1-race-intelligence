@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  #Serviço 1: API Flask + Modelos de Machine Learning
+  api:
+    build: .
+    container_name: f1-api
+    command: python -m src.api.app
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+    volumes:
+      - ./models:/app/models  # Permite que a API leia os arquivos .pkl locais
+      - ./data:/app/data      # Permite leitura das tabelas Gold
+      - ./src:/app/src
+
+  #Serviço 2: Frontend Dashboard (Streamlit)
+  dashboard:
+    build: .
+    container_name: f1-dashboard
+    command: streamlit run src/frontend/app.py --server.port=8501 --server.address=0.0.0.0
+    ports:
+      - "8501:8501"
+    environment:
+      # Aponta a API para o nome do container do serviço 'api' na rede interna do Docker
+      - API_URL=http://api:5000/api/v1
+    depends_on:
+      - api  # Só inicia o Streamlit depois que a API estiver pronta

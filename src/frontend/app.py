@@ -1,5 +1,6 @@
 import streamlit as st
 import requests
+import os
 import plotly.graph_objects as go
 import plotly.express as px
 import pandas as pd
@@ -12,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-API_URL = "http://127.0.0.1:5000/api/v1"
+API_URL = os.getenv("API_URL", "http://127.0.0.1:5000/api/v1")
 
 # ==============================================================================
 # ESTADO DE SESSÃO (histórico de simulações)
@@ -86,8 +87,7 @@ with tab1:
                     "Pos. Ganhas": pos_gained,
                     "Chuva": "Sim" if is_rain else "Não",
                     "Probabilidade (%)": prob,
-                    "Previsão": "Top 10" if will_score else "Fora dos Pontos",
-                    "Timestamp": datetime.now().strftime("%H:%M:%S")
+                    "Previsão": "Top 10" if will_score else "Fora dos Pontos"
                 })
 
                 st.divider()

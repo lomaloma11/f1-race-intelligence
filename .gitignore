@@ -19,3 +19,6 @@ env/
 # --- Modelos Treinados ---
 models/
 *.pkl
+
+# Cache do Vscode
+.vscode/
