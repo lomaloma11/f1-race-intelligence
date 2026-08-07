@@ -147,5 +147,3 @@ Após executar o `docker compose up -d --build`, o projeto disponibilizará:
 
 > **Nota:** Para acessar os serviços em produção, utilize os links disponibilizados na seção [Links de Acesso](#links-de-acesso-aplicações-em-produção). Para execução local, utilize `localhost` conforme indicado na seção [Instruções de Execução Local](#instruções-de-execução-local).
 
-```
-```
