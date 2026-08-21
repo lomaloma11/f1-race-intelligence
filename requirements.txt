@@ -54,7 +54,7 @@ mistune==3.3.4
 msgpack==1.1.2
 narwhals==2.24.0
 nest-asyncio2==1.7.2
-numpy==2.5.1
+numpy==2.4.0
 packaging==26.2
 pandas==2.3.3
 parso==0.8.7
