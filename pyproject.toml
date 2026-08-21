@@ -1,0 +1,26 @@
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+# Pastas e arquivos que o Ruff NUNCA deve analisar
+exclude = [
+    ".venv",
+    "venv",
+    ".git",
+    "__pycache__",
+    "data",
+    "notebooks",
+    "models"
+]
+
+[tool.ruff.lint]
+# Seleciona apenas erros reais de sintaxe e imports quebrados
+select = ["E", "F", "W"]
+ignore = [
+    "E501",   # Ignora limite de 88 caracteres por linha
+    "BLE001", # Permite catch genérico de Exception
+    "TRY004",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"] # Permite assert no Pytest

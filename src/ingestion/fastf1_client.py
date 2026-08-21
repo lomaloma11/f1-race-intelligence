@@ -1,11 +1,13 @@
-import os 
+import os
 import fastf1
+
 
 class FastF1Client:
     """
     Cliente responsável por encapsular a comunicação com a biblioteca FastF1
     e gerenciar o cache local.
     """
+
     def __init__(self, cache_dir: str = "data/raw/cache"):
         self.cache_dir = cache_dir
         os.makedirs(self.cache_dir, exist_ok=True)
@@ -20,6 +22,5 @@ class FastF1Client:
             session = fastf1.get_session(year, event, session_type)
             session.load()
             return session
-        except Exception as e:
+        except Exception:
             return None
-            

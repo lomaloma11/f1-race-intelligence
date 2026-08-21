@@ -26,10 +26,10 @@ jobs:
           pip install ruff pytest pytest-cov
           pip install -r requirements.txt
 
-      - name: Executar Análise Estática (Ruff)
+      - name: Executar Linter (Ruff)
         run: |
-          ruff check src/ tests/
+          ruff check .
 
-      - name: Executar Suíte de Testes (Pytest)
+      - name: Executar Testes (Pytest)
         run: |
           pytest -v --cov=src tests/

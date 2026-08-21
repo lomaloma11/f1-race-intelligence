@@ -6,6 +6,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, roc_auc_score
 
+
 def load_gold_dataset(gold_dir: str = "data/gold") -> pd.DataFrame:
     """
     Carrega e une todas as partições Parquet existentes na camada Gold.
@@ -20,26 +21,27 @@ def load_gold_dataset(gold_dir: str = "data/gold") -> pd.DataFrame:
     df_full = pd.concat(df_list, ignore_index=True)
     return df_full
 
+
 def train_top10_model():
     print("Carregando dataset consolidado da camada Gold...")
     df = load_gold_dataset()
 
     # 1. Definindo a variável Alvo (Target): 1 se terminou no Top 10, 0 caso contrário
-    df['is_top10'] = (df['Position'] <= 10).astype(int)
+    df["is_top10"] = (df["Position"] <= 10).astype(int)
 
     # 2. Seleção de Features Preditivas
     feature_cols = [
-        'GridPosition', 
-        'avg_lap_time', 
-        'std_lap_time', 
-        'positions_gained', 
-        'is_rainy_session'
+        "GridPosition",
+        "avg_lap_time",
+        "std_lap_time",
+        "positions_gained",
+        "is_rainy_session",
     ]
 
     # Tratamento de valores nulos (ex: std_lap_time nulo para poucas voltas completadas)
     X = df[feature_cols].copy()
     X = X.fillna(X.median())
-    y = df['is_top10']
+    y = df["is_top10"]
 
     print(f"Dataset pronto: {X.shape[0]} amostras e {X.shape[1]} features.")
 
@@ -66,6 +68,7 @@ def train_top10_model():
     model_path = "models/top10_model.pkl"
     joblib.dump(clf, model_path)
     print(f"Modelo salvo com sucesso em: {model_path}")
+
 
 if __name__ == "__main__":
     train_top10_model()

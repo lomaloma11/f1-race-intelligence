@@ -2,6 +2,7 @@ import joblib
 import os
 from src.utils.s3_client import S3DataLake
 
+
 class AnalyticsService:
     def __init__(self):
         # 1. Carrega os modelos de Pneus
@@ -30,7 +31,7 @@ class AnalyticsService:
         return {
             "compound": compound,
             "base_pace_seconds": round(model.intercept_, 3),
-            "degradation_per_lap_seconds": round(model.coef_[0], 3)
+            "degradation_per_lap_seconds": round(model.coef_[0], 3),
         }
 
     def predict_cluster(self, avg_lap_time: float, std_lap_time: float):
@@ -41,14 +42,14 @@ class AnalyticsService:
         artifacts = joblib.load("models/driver_clustering_model.pkl")
         scaler = artifacts["scaler"]
         kmeans = artifacts["kmeans"]
-        
+
         # 2. Escalonar os dados (formato de lista 2D)
         scaled_data = scaler.transform([[avg_lap_time, std_lap_time]])
-        
+
         # 3. Fazer a previsão (Isso devolve um numpy.int64)
         cluster_numpy = kmeans.predict(scaled_data)[0]
-        
+
         # 4. CONVERSÃO OBRIGATÓRIA: Transformar em int nativo do Python
         cluster_id = int(cluster_numpy)
-        
+
         return cluster_id

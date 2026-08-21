@@ -7,17 +7,18 @@ from src.api.schemas.analytics_schemas import (
     TireCompoundInput,
 )
 
-analytics_bp = Blueprint('analytics', __name__)
+analytics_bp = Blueprint("analytics", __name__)
 analytics_service = AnalyticsService()
 
-# Rota 1: Pneus 
-@analytics_bp.route('/tires/<compound>', methods=['GET'])
+
+# Rota 1: Pneus
+@analytics_bp.route("/tires/<compound>", methods=["GET"])
 def get_tires(compound):
     """
     Retorna a análise de degradação e ritmo por composto de pneu.
     ---
     tags:
-      - Analytics 
+      - Analytics
     summary: Análise de Desempenho dos Compostos de Pneu
     description: Retorna métricas agregadas de degradação e tempo por volta para pneus Soft e Hard.
     responses:
@@ -53,22 +54,23 @@ def get_tires(compound):
         resultado = analytics_service.get_tire_degradation(validated_input.compound)
         return jsonify({"status": "success", "data": resultado}), 200
     except ValidationError as e:
-        return jsonify({
-            "status": "error",
-            "message": "Composto de pneu inválido ou não suportado. Compostos suportados: SOFT e HARD.",
-            "errors": json.loads(e.json())
-        }), 400
+        return jsonify(
+            {
+                "status": "error",
+                "message": "Composto de pneu inválido ou não suportado. Compostos suportados: SOFT e HARD.",
+                "errors": json.loads(e.json()),
+            }
+        ), 400
     except ValueError as e:
-        return jsonify({
-            "status": "error",
-            "message": str(e),
-            "errors": [{"msg": str(e)}]
-        }), 400
+        return jsonify(
+            {"status": "error", "message": str(e), "errors": [{"msg": str(e)}]}
+        ), 400
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
+
 # Rota 2: Clusterização
-@analytics_bp.route('/drivers/cluster', methods=['POST'])
+@analytics_bp.route("/drivers/cluster", methods=["POST"])
 def predict_cluster():
     """
     Retorna o agrupamento (Clustering/K-Means) dos perfis de pilotagem.
@@ -123,7 +125,7 @@ def predict_cluster():
         description: Erro interno no servidor
     """
     data = request.get_json(silent=True)
-    
+
     try:
         if data is None or not isinstance(data, dict):
             # Provoca erro Pydantic com payload vazio se não for dict
@@ -131,23 +133,22 @@ def predict_cluster():
         else:
             validated_data = DriverClusterInput(**data)
     except ValidationError as e:
-        return jsonify({
-            "status": "error",
-            "message": "Dados de entrada inválidos",
-            "errors": json.loads(e.json())
-        }), 400
+        return jsonify(
+            {
+                "status": "error",
+                "message": "Dados de entrada inválidos",
+                "errors": json.loads(e.json()),
+            }
+        ), 400
 
     try:
         resultado = analytics_service.predict_cluster(
             avg_lap_time=validated_data.avg_lap_time,
-            std_lap_time=validated_data.std_lap_time
+            std_lap_time=validated_data.std_lap_time,
         )
-        return jsonify({
-            "status": "success", 
-            "data": {
-                "assigned_cluster": resultado
-            }
-        }), 200
-        
+        return jsonify(
+            {"status": "success", "data": {"assigned_cluster": resultado}}
+        ), 200
+
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
