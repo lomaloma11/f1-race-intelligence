@@ -116,7 +116,7 @@ A documentação interativa completa dos endpoints pode ser consultada via Swagg
 1. **Clone o repositório:**
 
 ```bash
-git clone https://github.com/SEU_USUARIO/f1-race-intelligence.git
+git clone https://github.com/lomaloma11/f1-race-intelligence.git
 cd f1-race-intelligence
 ```
 
