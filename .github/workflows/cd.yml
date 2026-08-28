@@ -20,6 +20,9 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd /home/ubuntu/f1-race-intelligence
-            git pull origin main
+            docker compose down
+            docker system prune -af
+            git fetch origin main
+            git reset --hard origin/main
             docker compose down
             docker compose up -d --build
