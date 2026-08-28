@@ -21,7 +21,8 @@ jobs:
           script: |
             cd /home/ubuntu/f1-race-intelligence
             docker compose down
-            docker system prune -af
+            docker system prune -af --volumes
+            docker builder prune -af 
             git fetch origin main
             git reset --hard origin/main
             docker compose down
