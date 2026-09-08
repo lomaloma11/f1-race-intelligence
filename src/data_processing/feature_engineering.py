@@ -7,8 +7,8 @@ class GoldFeatureBuilder:
     ) -> pd.DataFrame:
         if df_results is None or df_results.empty:
             return pd.DataFrame()
-    
-        # Métricas de Ritmo e Consistência 
+
+        # Métricas de Ritmo e Consistência
         if df_laps is not None and not df_laps.empty:
             full_race_summary = (
                 df_laps.groupby("Driver")

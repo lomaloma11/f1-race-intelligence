@@ -23,17 +23,31 @@ class BaseCollector:
         self.modes = modes
         self.output_dir = output_dir
 
+        bucket = os.getenv("S3_BUCKET_NAME")
+        if output_dir:
+            self.output_dir = output_dir
+        elif bucket:
+            self.output_dir = f"s3://{bucket}/raw"
+        else:
+            self.output_dir = "data/raw"
+
     def extract(self, session) -> pd.DataFrame:
         raise NotImplementedError("Implemente o metodo extract() na subclasse.")
 
     def save(self, df: pd.DataFrame, year: int, round_num: int, mode: str):
         # Particionamento automatico Hive: data/raw/dataset/year=YYYY/round=RR/mode.parquet
-        partition_path = os.path.join(
-            self.output_dir, self.dataset_name, f"year={year}", f"round={round_num:02d}"
-        )
-        os.makedirs(partition_path, exist_ok=True)
+        is_s3 = str(self.output_dir).startswith("s3://")
 
+        if is_s3:
+            file_path = f"{self.output_dir}/{self.dataset_name}/year={year}/round={round_num:02d}/{mode}.parquet"
+        else:
+            partition_path = os.path.join(
+                self.output_dir, self.dataset_name, f"year={year}", f"round={round_num:02d}"
+            )
+
+        os.makedirs(partition_path, exist_ok=True)
         file_path = os.path.join(partition_path, f"{mode}.parquet")
+
         df.to_parquet(file_path, index=False, compression="snappy")
 
     def process_session(self, year: int, round_num: int, mode: str) -> bool:

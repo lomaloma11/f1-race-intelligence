@@ -1,67 +1,57 @@
 import os
 import pandas as pd
 import argparse
+import fsspec
 from src.data_processing.base_processor import BaseProcessor
 from src.data_processing.cleaners.laps_cleaner import LapsCleaner
 from src.data_processing.cleaners.results_cleaner import ResultsCleaner
 from src.data_processing.cleaners.weather_cleaner import WeatherCleaner
 from src.data_processing.feature_engineering import GoldFeatureBuilder
-from src.utils.s3_client import S3DataLake
 
+def check_path_exists(path: str) -> bool:
+    """Verifica se um caminho existe tanto em disco local quanto em s3://."""
+    fs, fspath = fsspec.core.url_to_fs(path)
+    return fs.exists(fspath)
+
+def get_base_uri(layer: str) -> str:
+    """Define o caminho base da camada (S3 ou disco local)."""
+    bucket = os.getenv("S3_BUCKET_NAME")
+    if bucket:
+        return f"s3://{bucket}/{layer}"
+    return os.path.join("data", layer)
 
 def process_gold_layer(year: int, round_num: int, mode: str = "R"):
-    silver_base = "data/silver"
-    gold_base = "data/gold"
+    silver_base = get_base_uri("silver")
+    gold_base = get_base_uri("gold")
 
-    # Carrega os três datasets da Silver se existirem
-    laps_path = os.path.join(
-        silver_base, "laps", f"year={year}", f"round={round_num:02d}", f"{mode}.parquet"
-    )
-    results_path = os.path.join(
-        silver_base,
-        "results",
-        f"year={year}",
-        f"round={round_num:02d}",
-        f"{mode}.parquet",
-    )
-    weather_path = os.path.join(
-        silver_base,
-        "weather",
-        f"year={year}",
-        f"round={round_num:02d}",
-        f"{mode}.parquet",
-    )
+    is_s3 = silver_base.startswith("s3://")
 
-    df_laps = pd.read_parquet(laps_path) if os.path.exists(laps_path) else None
-    df_results = pd.read_parquet(results_path) if os.path.exists(results_path) else None
-    df_weather = pd.read_parquet(weather_path) if os.path.exists(weather_path) else None
+    # Monta os caminhos dos 3 datasets da camada Silver
+    if is_s3:
+        laps_path = f"{silver_base}/laps/year={year}/round={round_num:02d}/{mode}.parquet"
+        results_path = f"{silver_base}/results/year={year}/round={round_num:02d}/{mode}.parquet"
+        weather_path = f"{silver_base}/weather/year={year}/round={round_num:02d}/{mode}.parquet"
+        output_file = f"{gold_base}/year={year}/round={round_num:02d}/{mode}.parquet"
+    else:
+        laps_path = os.path.join(silver_base, "laps", f"year={year}", f"round={round_num:02d}", f"{mode}.parquet")
+        results_path = os.path.join(silver_base, "results", f"year={year}", f"round={round_num:02d}", f"{mode}.parquet")
+        weather_path = os.path.join(silver_base, "weather", f"year={year}", f"round={round_num:02d}", f"{mode}.parquet")
+        gold_partition_path = os.path.join(gold_base, f"year={year}", f"round={round_num:02d}")
+        os.makedirs(gold_partition_path, exist_ok=True)
+        output_file = os.path.join(gold_partition_path, f"{mode}.parquet")
 
-    if df_results is not None:
+    # Leitura dos datasets se existirem
+    df_laps = pd.read_parquet(laps_path) if check_path_exists(laps_path) else None
+    df_results = pd.read_parquet(results_path) if check_path_exists(results_path) else None
+    df_weather = pd.read_parquet(weather_path) if check_path_exists(weather_path) else None
+
+    if df_results is not None and not df_results.empty:
         builder = GoldFeatureBuilder()
         df_gold = builder.build_race_features(df_laps, df_results, df_weather)
 
-        # Salva a partição Gold
-        gold_partition_path = os.path.join(
-            gold_base, f"year={year}", f"round={round_num:02d}"
-        )
-        os.makedirs(gold_partition_path, exist_ok=True)
-
-        output_file = os.path.join(gold_partition_path, f"{mode}.parquet")
+        # Salva o arquivo consolidado (local ou S3)
         df_gold.to_parquet(output_file, index=False, compression="snappy")
-        print(
-            f"[GOLD] Tabela consolidada gerada: {year} | Round {round_num:02d} | Modo {mode}"
-        )
-
-        if os.getenv("S3_BUCKET_NAME"):
-            try:
-                s3 = S3DataLake()
-                s3_key = f"gold/year={year}/round={round_num:02d}/{mode}.parquet"
-                s3.upload_dataframe(df_gold, s3_key)
-                print(
-                    f"[GOLD S3] Partição enviada para a nuvem: s3://{s3.bucket_name}/{s3_key}"
-                )
-            except Exception as e:
-                print(f"[AWS S3 WARNING] Falha ao enviar para o S3: {e}")
+        print(f"[GOLD] Tabela consolidada gerada: {year} | Round {round_num:02d} | Modo {mode}")
 
 
 def main():
@@ -88,6 +78,9 @@ def main():
         "weather": BaseProcessor("weather", WeatherCleaner()),
     }
 
+    raw_base = get_base_uri("raw")
+    is_s3 = raw_base.startswith("s3://")
+
     print(f"Iniciando processamento para os anos: {args.years}")
 
     for year in args.years:
@@ -96,19 +89,16 @@ def main():
 
             for mode in args.modes:
                 mode_found = False
-
-                # Processa todas as tabelas Silver primeiro
+                # Processa cada dataset da Silver
                 for dataset_name, processor in processors.items():
-                    raw_file = os.path.join(
-                        "data/raw",
-                        dataset_name,
-                        f"year={year}",
-                        f"round={round_num:02d}",
-                        f"{mode}.parquet",
-                    )
-                    if os.path.exists(raw_file):
-                        found_in_round = True
+                    if is_s3:
+                        raw_file = f"{raw_base}/{dataset_name}/year={year}/round={round_num:02d}/{mode}.parquet"
+                    else:
+                        raw_file = os.path.join(raw_base, dataset_name, f"year={year}", f"round={round_num:02d}", f"{mode}.parquet")
+
+                    if check_path_exists(raw_file):
                         mode_found = True
+                        found_in_round = True
                         processor.process_partition(year, round_num, mode)
 
                 # Processa a Gold

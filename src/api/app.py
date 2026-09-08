@@ -26,7 +26,7 @@ def create_app():
     def home():
         return jsonify(
             {
-                "status": "online", 
+                "status": "online",
                 "message": "API rodando!"
             }
         )

@@ -60,7 +60,7 @@ def cluster_driving_styles(n_clusters: int = 3):
 
     # Cria um dicionário (pacote) com os dois artefatos
     artifacts = {
-        "scaler": scaler, 
+        "scaler": scaler,
         "kmeans": kmeans
         }
 
