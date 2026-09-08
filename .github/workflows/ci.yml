@@ -27,6 +27,7 @@ jobs:
 
       - name: Executar Linter (Ruff)
         run: |
+          ruff check . --fix
           ruff check .
 
       - name: Executar Testes (Pytest)
