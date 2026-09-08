@@ -53,7 +53,7 @@ def get_tires(compound):
         resultado = analytics_service.get_tire_degradation(validated_input.compound)
         return jsonify(
             {
-                "status": "success", 
+                "status": "success",
                 "data": resultado
             }
         ), 200
@@ -68,15 +68,15 @@ def get_tires(compound):
     except ValueError as e:
         return jsonify(
             {
-                "status": "error", 
-                "message": str(e), 
+                "status": "error",
+                "message": str(e),
                 "errors": [{"msg": str(e)}]
             }
         ), 400
     except Exception as e:
         return jsonify(
             {
-                "status": "error", 
+                "status": "error",
                 "message": str(e)
             }
         ), 500
@@ -160,7 +160,7 @@ def predict_cluster():
         )
         return jsonify(
             {
-                "status": "success", 
+                "status": "success",
                 "data": {"assigned_cluster": resultado}
             }
         ), 200
@@ -168,7 +168,7 @@ def predict_cluster():
     except Exception as e:
         return jsonify(
             {
-                "status": "error", 
+                "status": "error",
                 "message": str(e)
             }
         ), 500

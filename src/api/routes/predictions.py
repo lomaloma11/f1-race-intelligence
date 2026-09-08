@@ -76,7 +76,7 @@ def predict_top10():
         resultado = prediction_service.predict_top10(validated_data.model_dump())
         return jsonify(
             {
-                "status": "success", 
+                "status": "success",
                 "data": resultado
             }
         ), 200
@@ -84,7 +84,7 @@ def predict_top10():
     except Exception as e:
         return jsonify(
             {
-                "status": "error", 
+                "status": "error",
                 "message": str(e)
               }
         ), 500
