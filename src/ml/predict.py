@@ -22,31 +22,29 @@ class RacePredictor:
     def predict_top10(
         self,
         grid_position: int,
-        avg_lap_time: float,
-        std_lap_time: float,
-        positions_gained: int,
+        avg_lap_time_early: float,
+        std_lap_time_early: float,
         is_rainy: int,
     ):
         """
         Recebe as métricas de um piloto e prevê a probabilidade dele terminar no Top 10.
         """
-        # 1. Monta o DataFrame com a mesma exata estrutura usada no treino
+        # Monta o DataFrame com a mesma exata estrutura usada no treino
         input_data = pd.DataFrame(
             [
                 {
                     "GridPosition": grid_position,
-                    "avg_lap_time": avg_lap_time,
-                    "std_lap_time": std_lap_time,
-                    "positions_gained": positions_gained,
+                    "avg_lap_time_early": avg_lap_time_early,
+                    "std_lap_time_early": std_lap_time_early,
                     "is_rainy_session": is_rainy,
                 }
             ]
         )
 
-        # 2. Faz a predição (0 = Fora dos pontos, 1 = Top 10)
+        # Faz a predição (0 = Fora dos pontos, 1 = Top 10)
         prediction = self.model.predict(input_data)[0]
 
-        # 3. Calcula a probabilidade matemática (certeza do modelo)
+        # Calcula a probabilidade matemática
         probability = self.model.predict_proba(input_data)[0][1]
 
         return {
@@ -63,9 +61,8 @@ if __name__ == "__main__":
     # Ex: Largou em 3º, tempo médio 75s, variação baixa (0.5s), manteve posição, sem chuva
     resultado_bom = predictor.predict_top10(
         grid_position=3,
-        avg_lap_time=75.0,
-        std_lap_time=0.5,
-        positions_gained=0,
+        avg_lap_time_early=75.0,
+        std_lap_time_early=0.5,
         is_rainy=0,
     )
     print(resultado_bom)
@@ -74,9 +71,8 @@ if __name__ == "__main__":
     # Ex: Largou em 18º, tempo médio 79s, variação alta (2.5s), perdeu 2 posições, com chuva
     resultado_ruim = predictor.predict_top10(
         grid_position=18,
-        avg_lap_time=79.0,
-        std_lap_time=2.5,
-        positions_gained=-2,
+        avg_lap_time_early=79.0,
+        std_lap_time_early=2.5,
         is_rainy=1,
     )
     print(resultado_ruim)

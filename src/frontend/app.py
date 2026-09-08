@@ -46,14 +46,14 @@ with tab1:
     with col1:
         grid_pos = st.slider("Posição no Grid de Largada", 1, 20, 5)
         avg_lap = st.number_input(
-            "Tempo Médio de Volta (segundos)", value=76.5, step=0.1
+            "Tempo Médio nas Primeiras Voltas (segundos)", value=76.5, step=0.1
         )
         std_lap = st.number_input(
-            "Desvio Padrão / Consistência (segundos)", value=0.8, step=0.05
+            "Desvio Padrão / Consistência nas Primeiras Voltas (segundos)",
+            value=0.8,
+            step=0.05,
         )
-
     with col2:
-        pos_gained = st.slider("Posições Ganhas/Perdidas", -15, 15, 0)
         is_rain = st.selectbox(
             "Condição Climática",
             options=[0, 1],
@@ -72,9 +72,8 @@ with tab1:
     if run_sim:
         payload = {
             "grid_position": grid_pos,
-            "avg_lap_time": avg_lap,
-            "std_lap_time": std_lap,
-            "positions_gained": pos_gained,
+            "avg_lap_time_early": avg_lap,
+            "std_lap_time_early": std_lap,
             "is_rainy": is_rain,
         }
 
@@ -94,7 +93,6 @@ with tab1:
                         "Grid": grid_pos,
                         "Ritmo Médio (s)": avg_lap,
                         "Consistência (s)": std_lap,
-                        "Pos. Ganhas": pos_gained,
                         "Chuva": "Sim" if is_rain else "Não",
                         "Probabilidade (%)": prob,
                         "Previsão": "Top 10" if will_score else "Fora dos Pontos",
@@ -104,17 +102,11 @@ with tab1:
                 st.divider()
                 st.subheader("Resultado da Previsão")
 
-                m1, m2, m3 = st.columns(3)
+                m1, m2 = st.columns(2)
                 m1.metric("Probabilidade de Pontuar", f"{prob}%")
                 m2.metric(
                     "Previsão Final",
                     "Vai Pontuar (Top 10)" if will_score else "Fora dos Pontos ❌",
-                )
-                delta_grid = grid_pos - (grid_pos - pos_gained)
-                m3.metric(
-                    "Posição Final Estimada",
-                    max(1, grid_pos - pos_gained),
-                    delta=f"{pos_gained:+d} posições",
                 )
 
                 g1, g2 = st.columns(2)
@@ -150,14 +142,12 @@ with tab1:
                         "Grid (invertido)",
                         "Ritmo",
                         "Consistência",
-                        "Ganho de Posições",
                         "Condição Seca",
                     ]
                     values = [
                         max(0, (21 - grid_pos) / 20 * 100),
                         max(0, (80 - avg_lap) / 10 * 100),
                         max(0, (2 - std_lap) / 2 * 100),
-                        max(0, min(100, (pos_gained + 15) / 30 * 100)),
                         0 if is_rain else 100,
                     ]
                     fig_radar = go.Figure()
@@ -443,7 +433,6 @@ with tab4:
         a_grid = st.slider("Grid A", 1, 20, 3, key="a_grid")
         a_avg = st.number_input("Ritmo Médio A (s)", value=76.0, key="a_avg")
         a_std = st.number_input("Consistência A (s)", value=0.6, key="a_std")
-        a_gained = st.slider("Pos. Ganhas A", -15, 15, 2, key="a_gained")
         a_rain = st.selectbox(
             "Clima A",
             [0, 1],
@@ -456,7 +445,6 @@ with tab4:
         b_grid = st.slider("Grid B", 1, 20, 8, key="b_grid")
         b_avg = st.number_input("Ritmo Médio B (s)", value=77.2, key="b_avg")
         b_std = st.number_input("Consistência B (s)", value=1.1, key="b_std")
-        b_gained = st.slider("Pos. Ganhas B", -15, 15, -1, key="b_gained")
         b_rain = st.selectbox(
             "Clima B",
             [0, 1],
@@ -467,16 +455,14 @@ with tab4:
     if st.button("Comparar Cenários", type="primary"):
         payload_a = {
             "grid_position": a_grid,
-            "avg_lap_time": a_avg,
-            "std_lap_time": a_std,
-            "positions_gained": a_gained,
+            "avg_lap_time_early": a_avg,
+            "std_lap_time_early": a_std,
             "is_rainy": a_rain,
         }
         payload_b = {
             "grid_position": b_grid,
-            "avg_lap_time": b_avg,
-            "std_lap_time": b_std,
-            "positions_gained": b_gained,
+            "avg_lap_time_early": b_avg,
+            "std_lap_time_early": b_std,
             "is_rainy": b_rain,
         }
 
@@ -591,8 +577,8 @@ with tab5:
         max_laps_b = max(1, total_race_laps - st2_laps_a - 1)
         default_b = min(total_race_laps // 3, max_laps_b)
 
-    st2_laps_b = st.slider("Voltas Stint B", 1, max_laps_b, default_b, key="s2_laps_b")
-    st2_c3 = st.selectbox("Stint C (Composto)", ["SOFT", "HARD"], index=0, key="s2_c3")
+        st2_laps_b = st.slider("Voltas Stint B", 1, max_laps_b, default_b, key="s2_laps_b")
+        st2_c3 = st.selectbox("Stint C (Composto)", ["SOFT", "HARD"], index=0, key="s2_c3")
 
     if st.button("Simular Estratégias", type="primary"):
         try:

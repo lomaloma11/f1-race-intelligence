@@ -24,10 +24,14 @@ def create_app():
 
     @app.route("/", methods=["GET"])
     def home():
-        return jsonify({"status": "online", "message": "API rodando!"})
+        return jsonify(
+            {
+                "status": "online", 
+                "message": "API rodando!"
+            }
+        )
 
     return app
-
 
 if __name__ == "__main__":
     app = create_app()

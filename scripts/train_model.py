@@ -27,7 +27,7 @@ def main():
 
     if args.model in ["tires", "all"]:
         print("\n --- Treinando Modelo: Degradação de Pneus ---")
-        # Dá pra testar o modelo tanto para pneus macios quanto duros
+        # Dá pra treinar o modelo tanto para pneus macios quanto duros
         calculate_tire_degradation(compound="SOFT")
         calculate_tire_degradation(compound="HARD")
 

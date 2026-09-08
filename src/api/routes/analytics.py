@@ -11,7 +11,6 @@ analytics_bp = Blueprint("analytics", __name__)
 analytics_service = AnalyticsService()
 
 
-# Rota 1: Pneus
 @analytics_bp.route("/tires/<compound>", methods=["GET"])
 def get_tires(compound):
     """
@@ -52,7 +51,12 @@ def get_tires(compound):
     try:
         validated_input = TireCompoundInput(compound=compound)
         resultado = analytics_service.get_tire_degradation(validated_input.compound)
-        return jsonify({"status": "success", "data": resultado}), 200
+        return jsonify(
+            {
+                "status": "success", 
+                "data": resultado
+            }
+        ), 200
     except ValidationError as e:
         return jsonify(
             {
@@ -63,13 +67,21 @@ def get_tires(compound):
         ), 400
     except ValueError as e:
         return jsonify(
-            {"status": "error", "message": str(e), "errors": [{"msg": str(e)}]}
+            {
+                "status": "error", 
+                "message": str(e), 
+                "errors": [{"msg": str(e)}]
+            }
         ), 400
     except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+        return jsonify(
+            {
+                "status": "error", 
+                "message": str(e)
+            }
+        ), 500
 
 
-# Rota 2: Clusterização
 @analytics_bp.route("/drivers/cluster", methods=["POST"])
 def predict_cluster():
     """
@@ -147,8 +159,16 @@ def predict_cluster():
             std_lap_time=validated_data.std_lap_time,
         )
         return jsonify(
-            {"status": "success", "data": {"assigned_cluster": resultado}}
+            {
+                "status": "success", 
+                "data": {"assigned_cluster": resultado}
+            }
         ), 200
 
     except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+        return jsonify(
+            {
+                "status": "error", 
+                "message": str(e)
+            }
+        ), 500

@@ -1,6 +1,5 @@
 from pydantic import BaseModel, Field, field_validator
 
-
 class Top10PredictionInput(BaseModel):
     # Valida que grid_position é um número inteiro entre 1 e 20
     grid_position: int = Field(
@@ -8,18 +7,19 @@ class Top10PredictionInput(BaseModel):
     )
 
     # Valida que o tempo médio é um número flutuante positivo em um intervalo realista de F1
-    avg_lap_time: float = Field(
-        ..., ge=50.0, le=200.0, description="Tempo médio por volta em segundos"
+    avg_lap_time_early: float = Field(
+        ...,
+        ge=50.0,
+        le=200.0,
+        description="Tempo médio de volta nas primeiras voltas da corrida (segundos)",
     )
 
-    # Valida o desvio padrão (consistência)
-    std_lap_time: float = Field(
-        ..., ge=0.0, le=20.0, description="Consistência/Desvio padrão em segundos"
-    )
-
-    # Valida posições ganhas/perdidas (entre -20 e 20)
-    positions_gained: int = Field(
-        0, ge=-20, le=20, description="Posições ganhas/perdidas em relação ao grid"
+    # Valida o desvio padrão (consistência) das primeiras voltas
+    std_lap_time_early: float = Field(
+        ...,
+        ge=0.0,
+        le=20.0,
+        description="Consistência/Desvio padrão do tempo de volta nas primeiras voltas (segundos)",
     )
 
     # Aceita apenas 0 (sem chuva) ou 1 (com chuva)

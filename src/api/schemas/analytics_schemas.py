@@ -31,7 +31,6 @@ class DriverClusterInput(BaseModel):
             )
         return v
 
-
 class TireCompoundInput(BaseModel):
     compound: str = Field(..., description="Composto de pneu (SOFT ou HARD)")
 

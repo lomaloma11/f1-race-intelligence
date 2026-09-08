@@ -12,22 +12,22 @@ class LapsCleaner:
 
         df = df_raw.copy()
 
-        # 1. Filtra apenas voltas com tempo registrado
+        # Filtra apenas voltas com tempo registrado
         df = df.dropna(subset=["LapTime", "LapNumber"])
 
-        # 2. Remove voltas de entrada/saída do box (PitIn / PitOut)
+        # Remove voltas de entrada/saída do box (PitIn / PitOut)
         if "PitOutTime" in df.columns:
             df = df[df["PitOutTime"].isna()]
         if "PitInTime" in df.columns:
             df = df[df["PitInTime"].isna()]
 
-        # 3. Converte colunas de Timedelta para segundos
+        # Converte colunas de Timedelta para segundos
         time_cols = ["LapTime", "Sector1Time", "Sector2Time", "Sector3Time"]
         for col in time_cols:
             if col in df.columns:
                 df[f"{col}Seconds"] = pd.to_timedelta(df[col]).dt.total_seconds()
 
-        # 4. Seleciona colunas essenciais
+        # Seleciona colunas essenciais
         keep_cols = [
             "Driver",
             "DriverNumber",

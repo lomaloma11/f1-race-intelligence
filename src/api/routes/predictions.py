@@ -22,25 +22,21 @@ def predict_top10():
           type: object
           required:
             - grid_position
-            - avg_lap_time
-            - std_lap_time
+            - avg_lap_time_early
+            - std_lap_time_early
           properties:
             grid_position:
               type: integer
               example: 4
               description: Posição no grid de largada (1 a 20)
-            avg_lap_time:
+            avg_lap_time_early:
               type: number
               example: 76.5
               description: Tempo médio de volta em segundos
-            std_lap_time:
+            std_lap_time_early:
               type: number
               example: 0.8
               description: Desvio padrão do tempo de volta (consistência)
-            positions_gained:
-              type: integer
-              example: 1
-              description: Posições ganhas ou perdidas
             is_rainy:
               type: integer
               example: 0
@@ -56,7 +52,12 @@ def predict_top10():
     data = request.get_json()
 
     if not data:
-        return jsonify({"status": "error", "message": "Nenhum dado fornecido."}), 400
+        return jsonify(
+            {
+                "status": "error",
+                "message": "Nenhum dado fornecido."
+            }
+        ), 400
     try:
         # Tenta validar o JSON usando o contrato da classe Top10PredictionInput
         validated_data = Top10PredictionInput(**data)
@@ -71,9 +72,19 @@ def predict_top10():
         ), 400
 
     try:
-        # Se passou na validação, envia o dicionário limpo para a IA
+        # Se passou na validação, envia o dicionário limpo para o serviço de predição
         resultado = prediction_service.predict_top10(validated_data.model_dump())
-        return jsonify({"status": "success", "data": resultado}), 200
+        return jsonify(
+            {
+                "status": "success", 
+                "data": resultado
+            }
+        ), 200
 
     except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+        return jsonify(
+            {
+                "status": "error", 
+                "message": str(e)
+              }
+        ), 500

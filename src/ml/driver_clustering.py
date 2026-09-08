@@ -19,24 +19,24 @@ def cluster_driving_styles(n_clusters: int = 3):
     # Remove pilotos sem dados de ritmo
     df = df.dropna(subset=["avg_lap_time", "std_lap_time"])
 
-    # 2. Seleciona as features: Velocidade e Consistência
+    # Seleciona as features: Velocidade e Consistência
     X = df[["avg_lap_time", "std_lap_time"]]
 
-    # 3. Normaliza os dados (K-Means é sensível à escala dos números)
+    # Normaliza os dados (K-Means é sensível à escala dos números)
     features = ["avg_lap_time", "std_lap_time"]
     X = df[features]
 
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
 
-    # 4. Cria o modelo K-Means
+    # Cria o modelo K-Means
     kmeans = KMeans(n_clusters=3, random_state=42)
     kmeans.fit(X_scaled)
 
     # Adiciona os rótulos de volta no DataFrame
     df["DrivingStyle_Cluster"] = kmeans.labels_
 
-    # 5. Exibe um resumo dos grupos
+    # Exibe um resumo dos grupos
     print("\n Perfis Identificados:")
     summary = (
         df.groupby("DrivingStyle_Cluster")
@@ -59,7 +59,10 @@ def cluster_driving_styles(n_clusters: int = 3):
     model_path = "models/driver_clustering_model.pkl"
 
     # Cria um dicionário (pacote) com os dois artefatos
-    artifacts = {"scaler": scaler, "kmeans": kmeans}
+    artifacts = {
+        "scaler": scaler, 
+        "kmeans": kmeans
+        }
 
     joblib.dump(artifacts, model_path)
     print(f"Scaler e Modelo KMeans salvos com sucesso em: {model_path}")

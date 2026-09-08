@@ -5,11 +5,11 @@ from src.utils.s3_client import S3DataLake
 
 class AnalyticsService:
     def __init__(self):
-        # 1. Carrega os modelos de Pneus
+        # Carrega os modelos de Pneus
         self.tire_soft_model = joblib.load("models/tire_soft_model.pkl")
         self.tire_hard_model = joblib.load("models/tire_hard_model.pkl")
 
-        # 2. Carrega o pacote de Clusterização
+        # Carrega o pacote de Clusterização
         cluster_artifacts = joblib.load("models/driver_clustering_model.pkl")
         self.scaler = cluster_artifacts["scaler"]
         self.kmeans = cluster_artifacts["kmeans"]
@@ -38,18 +38,18 @@ class AnalyticsService:
         """
         Recebe o ritmo de um piloto e diz em qual grupo (cluster) ele se encaixa.
         """
-        # 1. Carrega o pacote com os dois artefatos
+        # Carrega o pacote com os dois artefatos
         artifacts = joblib.load("models/driver_clustering_model.pkl")
         scaler = artifacts["scaler"]
         kmeans = artifacts["kmeans"]
 
-        # 2. Escalonar os dados (formato de lista 2D)
+        # Escalonar os dados (formato de lista 2D)
         scaled_data = scaler.transform([[avg_lap_time, std_lap_time]])
 
-        # 3. Fazer a previsão (Isso devolve um numpy.int64)
+        # Fazer a previsão (Isso devolve um numpy.int64)
         cluster_numpy = kmeans.predict(scaled_data)[0]
 
-        # 4. CONVERSÃO OBRIGATÓRIA: Transformar em int nativo do Python
+        # Transformar em int nativo do Python
         cluster_id = int(cluster_numpy)
 
         return cluster_id

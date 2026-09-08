@@ -97,7 +97,7 @@ def main():
             for mode in args.modes:
                 mode_found = False
 
-                # 1. Processa todas as tabelas Silver primeiro
+                # Processa todas as tabelas Silver primeiro
                 for dataset_name, processor in processors.items():
                     raw_file = os.path.join(
                         "data/raw",
@@ -111,7 +111,7 @@ def main():
                         mode_found = True
                         processor.process_partition(year, round_num, mode)
 
-                # 2. Processa a Gold
+                # Processa a Gold
                 if mode_found:
                     process_gold_layer(year, round_num, mode)
 

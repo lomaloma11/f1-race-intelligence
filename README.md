@@ -76,6 +76,7 @@ f1-race-intelligence/
 │   │
 │   └── utils/                 # Conexão com a AWS 
 │
+├── tests/                     # Testes dos cleaners e das features
 ├── .env.example               # Exemplo das variáveis de ambiente
 ├── docker-compose.yml         # Orquestração dos containers
 ├── Dockerfile                 # Configuração da imagem Docker

@@ -39,7 +39,7 @@ class BaseProcessor:
         if df_silver.empty:
             return
 
-        # Caminho de saída (Silver - espelhando a estrutura de partições)
+        # Caminho de saída
         silver_partition_path = os.path.join(
             self.silver_dir, self.dataset_name, f"year={year}", f"round={round_num:02d}"
         )
